@@ -2,7 +2,6 @@ const http = require('http');
 const { EventEmitter } = require('events');
 const logger = require('./logger');
 
-
 class AppServer extends EventEmitter{
     constructor() {
         super()
@@ -56,3 +55,4 @@ app.on('server:stopped', () => {
 
 
 app.start(3000);
+

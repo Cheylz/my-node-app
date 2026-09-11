@@ -1,16 +1,58 @@
 const http = require('http'); 
+const { EventEmitter } = require('events');
+const logger = require('./logger');
 
-const server = http.createServer((req, res) => { 
-res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' }); 
-res.write('<h1>Мандрыкин Никита Александрович</h1>');
-res.write('<h1>Группа 478</h1>');
+class AppServer extends EventEmitter{
+    constructor() {
+        super()
+        this.server = null;
+    }
 
-const pi = Math.PI.toFixed(11);
-res.write(`<h1>${pi}</h1>`);
+    start(port)
+    {
+        this.server = http.createServer((req, res) => {
+            this.emit('request:received', {url: req.url, method: req.method});
 
-res.end();
-}); 
-const PORT = 3000; 
-server.listen(PORT, () => { 
-console.log(`Сервер запущен на http://localhost:${PORT}`); 
+            res.writeHead(200, {'Content-type' : 'text/plain; charset=utf-8'});
+            res.end('Мандрыкин Никита Александрович, Группа 478');
+        });
+
+        this.server.listen(port,() =>
+        {
+            this.emit('server:started', port);
+        });
+    }
+
+    stop()
+    {
+        if(this.server)
+        {
+            this.server.close(() =>
+            {
+                this.emit('server:stopped');
+            });
+        }
+    }
+}
+
+
+const app = new AppServer();
+
+logger.setupLogger(app);
+
+app.on('server:started', (port) => {
+    console.log(`Сервер запущен на http://localhost:${port}`); 
+    
 });
+
+app.on('request:received', (data) => {
+  console.log(` Получен запрос: ${data.method} ${data.url}`);
+});
+
+app.on('server:stopped', () => {
+  console.log('Сервер остановлен');
+});
+
+
+app.start(3000);
+

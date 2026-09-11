@@ -15,7 +15,7 @@ class AppServer extends EventEmitter{
             this.emit('request:received', {url: req.url, method: req.method});
 
             res.writeHead(200, {'Content-type' : 'text/plain; charset=utf-8'});
-            res.end('Привет, мир!');
+            res.end('Мандрыкин Никита Александрович, Группа 478');
         });
 
         this.server.listen(port,() =>
